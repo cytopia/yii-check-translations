@@ -249,6 +249,13 @@ foreach ($language_files as $message_dir => $files) {
 				$file1 = $message_dir.DIRECTORY_SEPARATOR.$lang1.DIRECTORY_SEPARATOR.$file;
 				$file2 = $message_dir.DIRECTORY_SEPARATOR.$lang2.DIRECTORY_SEPARATOR.$file;
 
+
+				// As we check all combinations for each language, we might already had this one
+				// If so, simply continue the next loop.
+				if (isset($combinations[$file1][$file2]) || isset($combinations[$file2][$file1])) {
+					continue;
+				}
+
 				// Read PHP arrays of a language file of two different languages
 				$arr1 = (include $file1);
 				$arr2 = (include $file2);
@@ -270,7 +277,7 @@ foreach ($language_files as $message_dir => $files) {
 
 				// Check if file1 does not have keys which are in file2
 				$f1_ern = 0;
-				echo '==> '.$file1.' ... ';
+				echo '==> '.$lang1.' -> '.$lang2.': '.$file1.' ... ';
 				foreach ($arr2 as $key2 => $val2) {
 					// Check if this combination has already been checked?
 					if (!isset($combinations[$file1][$file2][$key2])) {
@@ -291,7 +298,7 @@ foreach ($language_files as $message_dir => $files) {
 
 				// Check if file2 does not have keys which are in file1
 				$f2_ern = 0;
-				echo '==> '.$file2.' ... ';
+				echo '==> '.$lang2.' -> '.$lang1.': '.$file2.' ... ';
 				foreach ($arr1 as $key1 => $val1) {
 					// Check if this combination has already been checked?
 					if (!isset($combinations[$file2][$file1][$key1])) {
