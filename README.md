@@ -1,6 +1,10 @@
 # yii-check-translations
 
-Shell script to check/validate yii translations in various folders
+Shell script to check/validate yii translations in various directories recursively.
+
+1. Check if all `messages` directories have specified language dirs
+2. Check if every language dir has the same set of files
+3. Check if all language files (of different languages) have the same PHP array indices
 
 ## Usage
 
@@ -22,6 +26,60 @@ $ ./yii-check-translations.php <path-to-yii-project> lang1 [lang2 [lang3 ...]]
 ```
 
 ## Example usage
+
+### (1/3) Missing language directories
+
+```shell
+$ ./yii-check-translations.php /shared/httpd/yii-project/ de_DE en_GB
+--------------------------------------------------------------------------------
+- (1/3) Checking directories pairs
+--------------------------------------------------------------------------------
+
+[E] Missing: /shared/httpd/yii-project/application/gii/module/templates/whitelabel/messages/de_DE
+[E] Missing: /shared/httpd/yii-project/application/gii/module/templates/whitelabel/messages/en_GB
+
+[X] Found:   /shared/httpd/yii-project/application/messages/de_DE
+[X] Found:   /shared/httpd/yii-project/application/messages/en_GB
+
+[X] Found:   /shared/httpd/yii-project/application/modules/admin/messages/de_DE
+[X] Found:   /shared/httpd/yii-project/application/modules/admin/messages/en_GB
+
+[X] Found:   /shared/httpd/yii-project/application/yii/requirements/messages/de_DE
+[E] Missing: /shared/httpd/yii-project/application/yii/requirements/messages/en_GB
+
+[FAIL] 3 missing language folder(s).
+==> Aborting...
+[1]
+```
+
+### (2/3) Missing translation files
+
+```shell
+$ ./yii-check-translations.php/shared/httpd/yii-project/application/modules de_DE en_GB
+--------------------------------------------------------------------------------
+- (1/3) Checking directories pairs
+--------------------------------------------------------------------------------
+
+[X] Found:   /shared/httpd/yii-project/application/modules/admin/messages/de_DE
+[X] Found:   /shared/httpd/yii-project/application/modules/admin/messages/en_GB
+
+[X] Found:   /shared/httpd/yii-project/application/modules/user/messages/de_DE
+[X] Found:   /shared/httpd/yii-project/application/modules/user/messages/en_GB
+
+[PASS] All subdirectories have all language folders.
+
+--------------------------------------------------------------------------------
+- (2/3) Check if all possible lang files are present in each lang folder
+--------------------------------------------------------------------------------
+
+[E] File not found: /shared/httpd/yii-project/application/modules/user/messages/en_GB/emails.php
+
+[FAIL] 1 language file(s) missing
+==> Aborting...
+[1]
+```
+
+### (3/3) Missing PHP indices
 
 ```shell
 $ ./yii-check-translations.php /shared/httpd/yii-project/protected/application/messages de_DE en_GB
@@ -46,8 +104,6 @@ $ ./yii-check-translations.php /shared/httpd/yii-project/protected/application/m
 
 ==> /shared/httpd/yii-project/protected/application/messages/de_DE/BrowserHintWidget.php ... OK
 ==> /shared/httpd/yii-project/protected/application/messages/en_GB/BrowserHintWidget.php ... OK
-==> /shared/httpd/yii-project/protected/application/messages/en_GB/BrowserHintWidget.php ... OK
-==> /shared/httpd/yii-project/protected/application/messages/de_DE/BrowserHintWidget.php ... OK
 ==> /shared/httpd/yii-project/protected/application/messages/de_DE/core.php ... ERROR
 [E] de_DE Missing key 'Remote Addr' (found in: en_GB)
 [E] de_DE Missing key 'moduleToken:dlt' (found in: en_GB)
@@ -58,8 +114,6 @@ $ ./yii-check-translations.php /shared/httpd/yii-project/protected/application/m
 [E] en_GB Missing key '{attribute} is not a valid email address.' (found in: de_DE)
 ==> /shared/httpd/yii-project/protected/application/messages/en_GB/core.php ... OK
 ==> /shared/httpd/yii-project/protected/application/messages/de_DE/core.php ... OK
-==> /shared/httpd/yii-project/protected/application/messages/de_DE/emails.php ... OK
-==> /shared/httpd/yii-project/protected/application/messages/en_GB/emails.php ... OK
 ==> /shared/httpd/yii-project/protected/application/messages/en_GB/emails.php ... OK
 ==> /shared/httpd/yii-project/protected/application/messages/de_DE/emails.php ... OK
 ==> /shared/httpd/yii-project/protected/application/messages/de_DE/javascript.php ... ERROR
@@ -74,33 +128,9 @@ $ ./yii-check-translations.php /shared/httpd/yii-project/protected/application/m
 [E] en_GB Missing key ' MB at ' (found in: de_DE)
 [E] en_GB Missing key ' MBps' (found in: de_DE)
 [E] en_GB Missing key ' remaining' (found in: de_DE)
-==> /shared/httpd/yii-project/protected/application/messages/en_GB/javascript.php ... OK
-==> /shared/httpd/yii-project/protected/application/messages/de_DE/javascript.php ... OK
-==> /shared/httpd/yii-project/protected/application/messages/de_DE/site.php ... OK
-==> /shared/httpd/yii-project/protected/application/messages/en_GB/site.php ... OK
-==> /shared/httpd/yii-project/protected/application/messages/en_GB/site.php ... OK
-==> /shared/httpd/yii-project/protected/application/messages/de_DE/site.php ... OK
-==> /shared/httpd/yii-project/protected/application/messages/de_DE/size_units.php ... ERROR
-[E] de_DE Missing key '{n} Bytes' (found in: en_GB)
-[E] de_DE Missing key '{n} GigaBytes' (found in: en_GB)
-[E] de_DE Missing key '{n} KiloBytes' (found in: en_GB)
-[E] de_DE Missing key '{n} MegaBytes' (found in: en_GB)
-[E] de_DE Missing key '{n} TeraBytes' (found in: en_GB)
-==> /shared/httpd/yii-project/protected/application/messages/en_GB/size_units.php ... ERROR
-[E] en_GB Missing key '{n} bytes' (found in: de_DE)
-[E] en_GB Missing key '{n} gigabytes' (found in: de_DE)
-[E] en_GB Missing key '{n} kilobytes' (found in: de_DE)
-[E] en_GB Missing key '{n} megabytes' (found in: de_DE)
-[E] en_GB Missing key '{n} terabytes' (found in: de_DE)
-==> /shared/httpd/yii-project/protected/application/messages/en_GB/size_units.php ... OK
-==> /shared/httpd/yii-project/protected/application/messages/de_DE/size_units.php ... OK
-==> /shared/httpd/yii-project/protected/application/messages/de_DE/tasks.php ... OK
-==> /shared/httpd/yii-project/protected/application/messages/en_GB/tasks.php ... ERROR
-[E] en_GB Missing key 'task:description:MAIL_ORDER' (found in: de_DE)
-[E] en_GB Missing key 'task:description:REQUEST_COLLECTION_DOWNLOAD' (found in: de_DE)
 ==> /shared/httpd/yii-project/protected/application/messages/en_GB/tasks.php ... OK
 ==> /shared/httpd/yii-project/protected/application/messages/de_DE/tasks.php ... OK
 
-[FAIL] 28 language file(s) have different indices
+[FAIL] 16 language file(s) have different indices
 ==> Aborting...
 ```
